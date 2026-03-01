@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PFTeA Concentrations in Water around Michigan</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+        <script src="./PFAS.js"></script>
+</head>
+
+<body>
+    <div id="mapid"></div>
+        <style>
+            #mapid{ width: 900px; height: 500px}
+            .slider-container {
+            margin-right: 20px;
+            display: flex;
+            align-items: left;
+            flex-direction: column;
+            }
+
+            .slider {
+                width: 550px; 
+            }
+
+            .tick-container {
+                display: flex;
+                justify-content: space-between;
+                width: 550px;
+                margin-top: 5px;
+            }
+
+            .tick {
+                font-size: 12px; 
+            }
+        </style>
+
+        <h1>PFTeA Content in Samples from Bodies of Water in Michigan</h1>
+        <h3>A darker red means a higher PFTeA concentration. Click the icons to see the PFTeA concentration and name of the body.</h3>
+
+        <div class="slider-container">
+            <input type="range" min="2016" max="2025" value="1" class="slider" id="slider" oninput='f()'>
+                <div class="tick-container">
+                    <span class="tick">2016</span>
+                    <span class="tick">2017</span>
+                    <span class="tick">2018</span>
+                    <span class="tick">2019</span>
+                    <span class="tick">2020</span>
+                    <span class="tick">2021</span>
+                    <span class="tick">2022</span>
+                    <span class="tick">2023</span>
+                    <span class="tick">2024</span>
+                    <span class="tick">2025</span>
+                </div>
+            </div>
+
+        <script>
+            var map = L.map('mapid', {zoomSnap: 0.4}).setView([44.68178000197231, -85.111123000744456], 6.4);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+            var layerGroup = L.layerGroup().addTo(map);
+
+            function makeIcon(concentration) {
+            var pfasIcon = L.icon({
+            iconUrl: (getIcon(concentration)),
+            iconSize: [10,10],
+            popupAnchor: [0,0] 
+            });
+            return pfasIcon
+        }
+
+        function getIcon(concentration) {
+            if (concentration <= 0.8) {
+        return './White Circle.png';
+        } 
+        else if (concentration > 0.8 && concentration <= 1.6) {
+        return './Pink Circle.png';
+        } 
+        else if (concentration > 1.6 && concentration <= 2.4) {
+        return './Light Red Circle.png';
+        } 
+        else if (concentration > 2.4 && concentration <= 3.6) {
+        return './Red Circle.png';
+        } 
+        else {
+        return './Dark Red Circle.png';
+        } 
+        }
+
+        function f() {
+            layerGroup.clearLayers();
+            var slider = document.getElementById('slider');
+            var sliderYear = slider.value;
+            for (var i=0; i < 3718; i++){
+                var collectionYear = data.features[i].properties.CollectionDate.slice(0,4)
+                var coords = data.features[i].geometry.coordinates
+                if (collectionYear == sliderYear) {
+                    var geojson = L.geoJson(data.features[i],{
+                    pointToLayer: function(feature,latlng){
+                        var concentration = feature.properties.CAS376067_PFTeA
+                        var name = feature.properties.Waterbody
+                        return L.marker(latlng, {icon: makeIcon(concentration)}).bindPopup(name + "<br>" + concentration + " ppb");}})
+                        .addTo(layerGroup);
+                    }
+	    	}
+        }
+        f()
+        </script>
+        
+
+</body>
+</html>
