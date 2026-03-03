@@ -104,7 +104,7 @@
                     pointToLayer: function(feature,latlng){
                         var concentration = feature.properties.CAS376067_PFTeA
                         var name = feature.properties.Waterbody
-                        return L.marker(latlng, {icon: makeIcon(concentration)}).bindPopup(name + "<br>" + concentration + " ppb");}})
+                        return L.marker(latlng, {icon: makeIcon(concentration)}).bindPopup(name + "<br>" + concentration + " ppt");}})
                         .addTo(layerGroup);
                     }
 	    	}
